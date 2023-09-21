@@ -7,9 +7,9 @@ const bcrypt = require("bcryptjs")
 router.use(express.json())
 router.post("/register", async (req, res) => {
     try {
-        
+
         const { username, email, password, cpassword } = await req.body;
-       
+
         if (!username || !email || !password || !cpassword) {
             res.status(400).json({ error: "Please fill the form carefully" })
         }
@@ -20,7 +20,7 @@ router.post("/register", async (req, res) => {
         const userExist = await UserModel.findOne({ email: email })
         if (userExist) {
             res.status(400).json({ error: "Email already exist" })
-        }else{
+        } else {
             const newUser = new UserModel({ username, email, password, cpassword })
             await newUser.save();
             res.status(201).json({ messege: "User registered succesfully" })
@@ -36,8 +36,33 @@ router.post("/register", async (req, res) => {
 })
 
 
-router.get("/login", async (req, res) => {
-    res.send("hello")
+router.post("/signin", async (req, res) => {
+    try {
+
+        const { email, password } = await req.body
+
+        if (!email || !password) {
+            res.status(400).json({ messege: "Fill the form carefully" })
+
+        }
+        const userExist = await UserModel.findOne({ email: email })
+        const isMatch = await bcrypt.compare(password, userExist.password)
+
+        if (userExist && isMatch) {
+            res.status(200).json({ messege: "Login succesfull" })
+        }
+        else if (!userExist) {
+            res.status(400).json({ messege: "Invalid email " })
+        }
+        else if (!isMatch) {
+            res.status(400).json({ messege: "Invalid password " })
+        }
+    } catch (err) {
+        res.status(400).json({ messege: `Login declined ${err}` })
+    }
+
+
+
 })
 
 
