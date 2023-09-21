@@ -5,3 +5,7 @@ const router=express.Router()
 router.get("/home",(req,res)=>{
     res.send("hello")
 })
+
+
+
+module.exports=router
